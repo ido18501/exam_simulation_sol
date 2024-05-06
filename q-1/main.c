@@ -54,41 +54,37 @@ int es_q2(char *s1, char *s2) {
     int counter = 0;
     int check;
     int idx = 0;
+    int s1_size = 0;
     //creating main histogram and one that will be used as a copy
-    int hist1[ABC_SIZE] = {0};
-    int hist2[ABC_SIZE] = {0};
+    int hist[ABC_SIZE] = {0};
     //initializing histograms according to s1 letters
     for (int i = 0; s1[i] != '\0'; i++) {
-        hist1[s1[i] - ABC_DIFFERENCE]++;
-        hist2[s1[i] - ABC_DIFFERENCE]++;
+        s1_size++;
+        hist[s1[i] - ABC_DIFFERENCE]++;
     }
+    int size = 0;
     //iterating through s2 and looking for a matching subarray
     for (int i = 0; s2[i] != '\0'; i++) {
-        check = 0;
-        //if a letter that doesn't appear in s1 or was already seen the number
-        // of appearances it has in s1, resetting histogram 2 and idx
-        if (hist2[s2[i] - ABC_DIFFERENCE] == 0) {
-            idx = i + 1;
+        //adjusting size of subarray
+        size += size < s1_size ? 1 : 0;
+        //marking letter as read
+        hist[s2[i] - ABC_DIFFERENCE]--;
+        //if subarray the size of s1, checking for a match
+        if (size == s1_size) {
+            check = 0;
+            //counting amount of letters in subarray that appear
+            // exactly the same amount of times in s1
             for (int j = 0; j < ABC_SIZE; j++) {
-                hist2[j] = hist1[j];
+                if (hist[j] == 0) {
+                    check++;
+                }
             }
-            //if a legal letter was found (histogram is not 0) -
-            // adjusting histogram
-        } else if (hist2[s2[i] - ABC_DIFFERENCE] > 0) {
-            hist2[s2[i] - ABC_DIFFERENCE]--;
-        }
-        //checking histogram, whenever a letter was used
-        // exactly the right number of time, counting it
-        for (int j = 0; j < ABC_SIZE; j++) {
-            if (hist2[j] == 0) {
-                check++;
-            }
-        }
-        //if all letters were used exactly the right amount of times - adding
-        // an option to counter and adjusting histogram and idx
-        if (check == ABC_SIZE) {
-            counter++;
-            hist2[s2[idx] - ABC_DIFFERENCE]++;
+            //if all letters appeared the right amount of
+            // times, adding a match to counter
+            counter += check == ABC_SIZE ? 1 : 0;
+            //restoring value of first letter of subarray
+            // in histogram and adjusting index
+            hist[s2[idx] - ABC_DIFFERENCE]++;
             idx++;
         }
     }
